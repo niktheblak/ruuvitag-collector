@@ -36,6 +36,7 @@ environment variable names from influx.py.
 import datetime
 import os
 
+from gcd import GoogleCloudDatastoreExporter
 from sqlite import SQLiteExporter
 from ruuvitag_sensor.ruuvi import RuuviTagSensor
 from ruuvitag_sensor.decoder import get_decoder
@@ -51,6 +52,7 @@ if not tags:
 
 sqlite = os.environ.get("RUUVITAG_USE_SQLITE", "0") == "1"
 influxdb = os.environ.get("RUUVITAG_USE_INFLUXDB", "0") == "1"
+gcd = os.environ.get("RUUVITAG_USE_GCD", "0") == "1"
 
 ts = datetime.datetime.utcnow()
 db_data = {}
@@ -77,6 +79,14 @@ if sqlite:
 if influxdb:
 	exporter = InfluxDBExporter()
 	print("Saving data to InfluxDB...")
+	exporter.export(db_data.items(), ts)
+	exporter.close()
+
+if gcd:
+	gcd_project = os.environ.get("RUUVITAG_GCD_PROJECT")
+	gcd_namespace = os.environ.get("RUUVITAG_GCD_NAMESPACE")
+	exporter = GoogleCloudDatastoreExporter(gcd_project, gcd_namespace)
+	print("Saving data to Google Cloud Datastore...")
 	exporter.export(db_data.items(), ts)
 	exporter.close()
 
