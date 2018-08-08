@@ -1,5 +1,5 @@
-# RuuviTag-logger
-Log RuuviTags data to SQLite or InfluxDB database.
+# ruuvitag-exporter
+Exports data from RuuviTag sensors to SQLite, InfluxDB and other databases.
 
 Based on https://github.com/kuosman/RuuviTag-logger but modified heavily
 for my (and hopefully others') use case.
@@ -7,7 +7,7 @@ for my (and hopefully others') use case.
 ## Used elements
   - [Raspberry Pi 3](https://www.raspberrypi.org/products/raspberry-pi-3-model-b/)
   - [Python 3](https://docs.python.org/3.6/)
-  - [RuuviTag Sensor Python Package](https://github.com/ttu/ruuvitag-sensor) by [Tomi Tuhkanen](https://github.com/ttu)
+  - [RuuviTag Sensor Python Package](https://github.com/ttu/ruuvitag-sensor)
   - [SQLite 3 database](https://docs.python.org/3.6/library/sqlite3.html#module-sqlite3)
 
 ## Setup
