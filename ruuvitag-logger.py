@@ -65,13 +65,13 @@ if local_db:
 	if row is None:
 		print("Creating local database table")
 		conn.execute('''CREATE TABLE sensors (
-				id				INTEGER		PRIMARY KEY AUTOINCREMENT NOT NULL,
-				timestamp		DATETIME	DEFAULT CURRENT_TIMESTAMP,
-				mac				TEXT		NOT NULL,
-				name			TEXT,
-				temperature		REAL,
-				humidity		REAL,
-				pressure		REAL
+				id              INTEGER     PRIMARY KEY AUTOINCREMENT NOT NULL,
+				timestamp       DATETIME    DEFAULT CURRENT_TIMESTAMP,
+				mac             TEXT        NOT NULL,
+				name            TEXT,
+				temperature     REAL,
+				humidity        REAL,
+				pressure        REAL
 			);''')
 		print("Table created successfully")
 
