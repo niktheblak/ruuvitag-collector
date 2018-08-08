@@ -31,8 +31,8 @@ export RUUVITAG_CONFIG_FILE=/home/pi/ruuvitag/ruuvitags.ini
 If you want to save data to local SQLite database, set the following environment variables:
 
 ```bash
-export RUUVITAG_USE_LOCAL_DB=1
-export RUUVITAG_LOCAL_DB_FILE=/home/pi/ruuvitag/ruuvitag.db
+export RUUVITAG_USE_SQLITE=1
+export RUUVITAG_SQLITE_FILE=/home/pi/ruuvitag/ruuvitag.db
 ```
 
 If you want to save data to InfluxDB (local or remote), set the following environment variables:

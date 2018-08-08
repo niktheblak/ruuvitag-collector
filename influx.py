@@ -1,11 +1,38 @@
 import datetime
 import os
 
+from exporter import Exporter
 from influxdb import InfluxDBClient
+
+class InfluxDBExporter(Exporter):
+    def __init__(self):
+        cfg = InfluxDBConfig()
+        self._client = InfluxDBClient(
+            host=cfg.host,
+            port=cfg.port,
+            username=cfg.username,
+            password=cfg.password,
+            database=cfg.database,
+            ssl=cfg.ssl,
+            verify_ssl=cfg.ssl
+        )
+    
+    def name(self):
+        return "InfluxDB"
+    
+    def export(self, measurements, ts=None):
+        if ts is None:
+            ts = datetime.datetime.utcnow()
+        for mac, content in measurements:
+            points = to_influx_points(ts, mac, content)
+            self._client.write_points(points)
+    
+    def close(self):
+        self._client.close()
+
 
 class InfluxDBConfig:
     def __init__(self):
-        self.enabled = os.environ.get("RUUVITAG_USE_INFLUXDB", "0") == "1"
         self.ssl = os.environ.get("RUUVITAG_INFLUXDB_SSL", "0") == "1"
         self.host = os.environ.get("RUUVITAG_INFLUXDB_HOST", "localhost")
         self.port = int(os.environ.get("RUUVITAG_INFLUXDB_PORT", "8086"))
