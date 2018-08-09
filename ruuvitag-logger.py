@@ -50,9 +50,16 @@ if not tags:
 	print("No RuuviTag definitions found from configuration file " + ini_file)
 	quit(1)
 
-sqlite = os.environ.get("RUUVITAG_USE_SQLITE", "0") == "1"
-influxdb = os.environ.get("RUUVITAG_USE_INFLUXDB", "0") == "1"
-gcd = os.environ.get("RUUVITAG_USE_GCD", "0") == "1"
+exporters = []
+if os.environ.get("RUUVITAG_USE_SQLITE", "0") == "1":
+	exporters.append(lambda: SQLiteExporter(os.environ.get("RUUVITAG_SQLITE_FILE", "ruuvitag.db")))
+if os.environ.get("RUUVITAG_USE_INFLUXDB", "0") == "1":
+	exporters.append(lambda: InfluxDBExporter())
+if os.environ.get("RUUVITAG_USE_GCD", "0") == "1":
+	gcd_project = os.environ.get("RUUVITAG_GCD_PROJECT")
+	gcd_namespace = os.environ.get("RUUVITAG_GCD_NAMESPACE")
+	exporters.append(lambda: GoogleCloudDatastoreExporter(gcd_project, gcd_namespace))
+# Add your own exporters here
 
 ts = datetime.datetime.utcnow()
 db_data = {}
@@ -70,24 +77,9 @@ for mac, name in tags.items():
 	for sensor, value in data.items():
 		db_data[mac].update({sensor: value})
 
-if sqlite:
-	exporter = SQLiteExporter(os.environ.get("RUUVITAG_SQLITE_FILE", "ruuvitag.db"))
-	print("Saving data to local database...")
-	exporter.export(db_data.items(), ts)
-	exporter.close()
-
-if influxdb:
-	exporter = InfluxDBExporter()
-	print("Saving data to InfluxDB...")
-	exporter.export(db_data.items(), ts)
-	exporter.close()
-
-if gcd:
-	gcd_project = os.environ.get("RUUVITAG_GCD_PROJECT")
-	gcd_namespace = os.environ.get("RUUVITAG_GCD_NAMESPACE")
-	exporter = GoogleCloudDatastoreExporter(gcd_project, gcd_namespace)
-	print("Saving data to Google Cloud Datastore...")
-	exporter.export(db_data.items(), ts)
-	exporter.close()
+for create_exporter in exporters:
+	with create_exporter() as exporter:
+		print("Saving data to {}...".format(exporter.name()))
+		exporter.export(db_data.items(), ts)
 
 print("Done.")
