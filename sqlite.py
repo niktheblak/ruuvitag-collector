@@ -38,4 +38,4 @@ class SQLiteExporter(Exporter):
                 humidity        REAL,
                 pressure        REAL
             );''')
-        print("Table created successfully")
+            print("Table created successfully")
