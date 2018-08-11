@@ -14,7 +14,8 @@ class InfluxDBExporter(Exporter):
             password=cfg.password,
             database=cfg.database,
             ssl=cfg.ssl,
-            verify_ssl=cfg.ssl
+            verify_ssl=cfg.ssl,
+            path=cfg.path
         )
     
     def name(self):
@@ -39,6 +40,7 @@ class InfluxDBConfig:
         self.database = os.environ.get("RUUVITAG_INFLUXDB_DATABASE")
         self.username = os.environ.get("RUUVITAG_INFLUXDB_USERNAME", "root")
         self.password = os.environ.get("RUUVITAG_INFLUXDB_PASSWORD", "root")
+        self.path = os.environ.get("RUUVITAG_INFLUXDB_PATH", "")
 
 def to_influx_points(ts, mac, content):
     if "ts" in content:
