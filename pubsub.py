@@ -18,6 +18,7 @@ class GooglePubSubExporter(Exporter):
     def export(self, measurements, ts=None):
         if ts is None:
             ts = datetime.datetime.utcnow()
+        futures = []
         for mac, content in measurements:
             m = {}
             m["mac"] = mac
@@ -27,4 +28,7 @@ class GooglePubSubExporter(Exporter):
             m["humidity"] = float(content["humidity"])
             m["pressure"] = float(content["pressure"])
             data = json.dumps(m).encode("utf-8")
-            self._publisher.publish(self._topic_path, data, mac=mac, name=content["name"])
+            message_future = self._publisher.publish(self._topic_path, data, mac=mac, name=content["name"])
+            futures.append(message_future)
+        for future in futures:
+            future.result()
