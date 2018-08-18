@@ -27,4 +27,4 @@ class GooglePubSubExporter(Exporter):
             m["humidity"] = float(content["humidity"])
             m["pressure"] = float(content["pressure"])
             data = json.dumps(m).encode("utf-8")
-            self._publisher.publish(self._topic_path, data=data)
+            self._publisher.publish(self._topic_path, data=data, attrs={"mac": mac, "name": content["name"]})
