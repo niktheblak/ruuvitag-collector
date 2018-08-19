@@ -23,7 +23,7 @@ class GooglePubSubExporter(Exporter):
             m = {}
             m["mac"] = mac
             m["name"] = content["name"]
-            m["ts"] = ts.replace(tzinfo=datetime.timezone.utc).isoformat()
+            m["ts"] = ts.isoformat()
             m["temperature"] = float(content["temperature"])
             m["humidity"] = float(content["humidity"])
             m["pressure"] = float(content["pressure"])
