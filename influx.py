@@ -43,10 +43,6 @@ class InfluxDBConfig:
         self.path = os.environ.get("RUUVITAG_INFLUXDB_PATH", "")
 
 def to_influx_points(ts, mac, content):
-    if "ts" in content:
-        ts_from_content = content["ts"]
-        if isinstance(ts_from_content, datetime.datetime):
-            ts = ts_from_content
     isots = ts.isoformat()
     return [
         {
