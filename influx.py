@@ -43,39 +43,18 @@ class InfluxDBConfig:
         self.path = os.environ.get("RUUVITAG_INFLUXDB_PATH", "")
 
 def to_influx_points(ts, mac, content):
-    isots = ts.isoformat()
     return [
         {
-            "measurement": "temperature",
+            "measurement": "values",
             "tags": {
-                "ruuvitag": content["name"],
+                "name": content["name"],
                 "mac": mac
             },
-            "time": isots,
+            "time": ts.isoformat(),
             "fields": {
-                "value": content["temperature"]
-            }
-        },
-        {
-            "measurement": "humidity",
-            "tags": {
-                "ruuvitag": content["name"],
-                "mac": mac
-            },
-            "time": isots,
-            "fields": {
-                "value": content["humidity"]
-            }
-        },
-        {
-            "measurement": "pressure",
-            "tags": {
-                "ruuvitag": content["name"],
-                "mac": mac
-            },
-            "time": isots,
-            "fields": {
-                "value": content["pressure"]
+                "temperature": content["temperature"],
+                "humidity": content["humidity"],
+                "pressure": content["pressure"]
             }
         }
     ]
