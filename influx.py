@@ -47,7 +47,7 @@ def to_influx_points(ts, mac, content):
         ts_from_content = content["ts"]
         if isinstance(ts_from_content, datetime.datetime):
             ts = ts_from_content
-    isots = ts.replace(microsecond=0).replace(tzinfo=datetime.timezone.utc).isoformat()
+    isots = ts.isoformat()
     return [
         {
             "measurement": "temperature",
