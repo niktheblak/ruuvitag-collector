@@ -6,7 +6,7 @@ import os
 from exporter import Exporter
 from influxdb import InfluxDBClient
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('convert-influx')
 
 cfg = influx.InfluxDBConfig()
