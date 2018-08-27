@@ -34,16 +34,16 @@ while True:
     measurements = []
     for row in results['temperature']:
         m = row.copy()
-        m['temperature'] = m['value']
+        m['temperature'] = float(m['value'])
         m.pop('value', None)
         measurements.append(m)
     i = 0
     for row in results['humidity']:
-        measurements[i]['humidity'] = row['value']
+        measurements[i]['humidity'] = float(row['value'])
         i += 1
     i = 0
     for row in results['pressure']:
-        measurements[i]['pressure'] = row['value']
+        measurements[i]['pressure'] = float(row['value'])
         i += 1
     logger.debug('Collected measurements: %s', measurements)
     logger.info('Writing measurements %d-%d', offset, offset + len(measurements))
