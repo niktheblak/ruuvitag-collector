@@ -52,9 +52,9 @@ def to_influx_points(ts, mac, content):
             },
             "time": ts.isoformat(),
             "fields": {
-                "temperature": content["temperature"],
-                "humidity": content["humidity"],
-                "pressure": content["pressure"]
+                "temperature": float(content["temperature"]),
+                "humidity": float(content["humidity"]),
+                "pressure": float(content["pressure"])
             }
         }
     ]
