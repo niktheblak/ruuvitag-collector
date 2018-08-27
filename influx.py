@@ -45,7 +45,7 @@ class InfluxDBConfig:
 def to_influx_points(ts, mac, content):
     return [
         {
-            "measurement": "values",
+            "measurement": "ruuvitag_sensor",
             "tags": {
                 "name": content["name"],
                 "mac": mac
