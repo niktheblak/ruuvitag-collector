@@ -36,12 +36,8 @@ environment variable names from influx.py.
 import datetime
 import os
 
-from gcd import GoogleCloudDatastoreExporter
-from sqlite import SQLiteExporter
 from ruuvitag_sensor.ruuvi import RuuviTagSensor
 from ruuvitag_sensor.decoder import get_decoder
-from influx import InfluxDBExporter
-from pubsub import GooglePubSubExporter
 from ruuvicfg import get_ruuvitags
 
 ini_file = os.environ.get("RUUVITAG_CONFIG_FILE", "ruuvitags.ini")
@@ -53,14 +49,18 @@ if not tags:
 
 exporters = []
 if os.environ.get("RUUVITAG_USE_SQLITE", "0") == "1":
+	from sqlite import SQLiteExporter
 	exporters.append(lambda: SQLiteExporter(os.environ.get("RUUVITAG_SQLITE_FILE", "ruuvitag.db")))
 if os.environ.get("RUUVITAG_USE_INFLUXDB", "0") == "1":
+	from influx import InfluxDBExporter
 	exporters.append(lambda: InfluxDBExporter())
 if os.environ.get("RUUVITAG_USE_GCD", "0") == "1":
+	from gcd import GoogleCloudDatastoreExporter
 	gcd_project = os.environ.get("RUUVITAG_GCD_PROJECT")
 	gcd_namespace = os.environ.get("RUUVITAG_GCD_NAMESPACE")
 	exporters.append(lambda: GoogleCloudDatastoreExporter(gcd_project, gcd_namespace))
 if os.environ.get("RUUVITAG_USE_PUBSUB", "0") == "1":
+	from pubsub import GooglePubSubExporter
 	pubsub_project = os.environ.get("RUUVITAG_PUBSUB_PROJECT")
 	pubsub_topic = os.environ.get("RUUVITAG_PUBSUB_TOPIC")
 	exporters.append(lambda: GooglePubSubExporter(pubsub_project, pubsub_topic))
