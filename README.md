@@ -1,5 +1,5 @@
-# ruuvitag-exporter
-Exports data from RuuviTag sensors to SQLite, InfluxDB and other databases.
+# ruuvitag-collector
+Collects data from RuuviTag sensors to SQLite, InfluxDB and other databases.
 
 Based on https://github.com/kuosman/RuuviTag-logger but modified heavily
 for my (and hopefully others') use case.
