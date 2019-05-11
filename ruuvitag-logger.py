@@ -44,7 +44,7 @@ ini_file = os.environ.get("RUUVITAG_CONFIG_FILE", "ruuvitags.ini")
 
 tags = get_ruuvitags(inifile=ini_file)
 if not tags:
-	print("No RuuviTag definitions found from configuration file " + ini_file)
+	print("No RuuviTag definitions found from configuration file {}".format(ini_file))
 	quit(1)
 
 exporters = []
@@ -69,7 +69,7 @@ if os.environ.get("RUUVITAG_USE_PUBSUB", "0") == "1":
 ts = datetime.datetime.utcnow()
 db_data = {}
 
-print("Reading measurements from RuuviTags " + str(tags))
+print("Reading measurements from RuuviTags {}".format(str(tags)))
 for mac, name in tags.items():
 	print("Reading measurements from RuuviTag {} ({})...".format(name, mac))
 	encoded = RuuviTagSensor.get_data(mac)
@@ -84,7 +84,10 @@ for mac, name in tags.items():
 
 for create_exporter in exporters:
 	with create_exporter() as exporter:
-		print("Saving data to {}...".format(exporter.name()))
-		exporter.export(db_data.items(), ts)
+		print("Exporting data to {}...".format(exporter.name()))
+		try:
+			exporter.export(db_data.items(), ts)
+		except Exception as e:
+			print("Error while exporting data to {}: {}".format(exporter.name(), e))
 
 print("Done.")
