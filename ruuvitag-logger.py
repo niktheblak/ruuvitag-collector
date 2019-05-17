@@ -44,26 +44,29 @@ ini_file = os.environ.get("RUUVITAG_CONFIG_FILE", "ruuvitags.ini")
 
 tags = get_ruuvitags(inifile=ini_file)
 if not tags:
-	print("No RuuviTag definitions found from configuration file {}".format(ini_file))
-	quit(1)
+    print("No RuuviTag definitions found from configuration file {}".format(ini_file))
+    quit(1)
 
 exporters = []
 if os.environ.get("RUUVITAG_USE_SQLITE", "0") == "1":
-	from sqlite import SQLiteExporter
-	exporters.append(lambda: SQLiteExporter(os.environ.get("RUUVITAG_SQLITE_FILE", "ruuvitag.db")))
+    from sqlite import SQLiteExporter
+    exporters.append(lambda: SQLiteExporter(
+        os.environ.get("RUUVITAG_SQLITE_FILE", "ruuvitag.db")))
 if os.environ.get("RUUVITAG_USE_INFLUXDB", "0") == "1":
-	from influx import InfluxDBExporter
-	exporters.append(lambda: InfluxDBExporter())
+    from influx import InfluxDBExporter
+    exporters.append(lambda: InfluxDBExporter())
 if os.environ.get("RUUVITAG_USE_GCD", "0") == "1":
-	from gcd import GoogleCloudDatastoreExporter
-	gcd_project = os.environ.get("RUUVITAG_GCD_PROJECT")
-	gcd_namespace = os.environ.get("RUUVITAG_GCD_NAMESPACE")
-	exporters.append(lambda: GoogleCloudDatastoreExporter(gcd_project, gcd_namespace))
+    from gcd import GoogleCloudDatastoreExporter
+    gcd_project = os.environ.get("RUUVITAG_GCD_PROJECT")
+    gcd_namespace = os.environ.get("RUUVITAG_GCD_NAMESPACE")
+    exporters.append(lambda: GoogleCloudDatastoreExporter(
+        gcd_project, gcd_namespace))
 if os.environ.get("RUUVITAG_USE_PUBSUB", "0") == "1":
-	from pubsub import GooglePubSubExporter
-	pubsub_project = os.environ.get("RUUVITAG_PUBSUB_PROJECT")
-	pubsub_topic = os.environ.get("RUUVITAG_PUBSUB_TOPIC")
-	exporters.append(lambda: GooglePubSubExporter(pubsub_project, pubsub_topic))
+    from pubsub import GooglePubSubExporter
+    pubsub_project = os.environ.get("RUUVITAG_PUBSUB_PROJECT")
+    pubsub_topic = os.environ.get("RUUVITAG_PUBSUB_TOPIC")
+    exporters.append(lambda: GooglePubSubExporter(
+        pubsub_project, pubsub_topic))
 # Add your own exporters here
 
 ts = datetime.datetime.utcnow()
@@ -71,23 +74,23 @@ db_data = {}
 
 print("Reading measurements from RuuviTags {}".format(str(tags)))
 for mac, name in tags.items():
-	print("Reading measurements from RuuviTag {} ({})...".format(name, mac))
-	encoded = RuuviTagSensor.get_data(mac)
-	decoder = get_decoder(encoded[0])
-	data = decoder.decode_data(encoded[1])
-	print("Data received: {}".format(data))
+    print("Reading measurements from RuuviTag {} ({})...".format(name, mac))
+    encoded = RuuviTagSensor.get_data(mac)
+    decoder = get_decoder(encoded[0])
+    data = decoder.decode_data(encoded[1])
+    print("Data received: {}".format(data))
 
-	db_data[mac] = {"name": name}
-	# add each sensor with value to the lists
-	for sensor, value in data.items():
-		db_data[mac].update({sensor: value})
+    db_data[mac] = {"name": name}
+    # add each sensor with value to the lists
+    for sensor, value in data.items():
+        db_data[mac].update({sensor: value})
 
 for create_exporter in exporters:
-	with create_exporter() as exporter:
-		print("Exporting data to {}...".format(exporter.name()))
-		try:
-			exporter.export(db_data.items(), ts)
-		except Exception as e:
-			print("Error while exporting data to {}: {}".format(exporter.name(), e))
+    with create_exporter() as exporter:
+        print("Exporting data to {}...".format(exporter.name()))
+        try:
+            exporter.export(db_data.items(), ts)
+        except Exception as e:
+            print("Error while exporting data to {}: {}".format(exporter.name(), e))
 
 print("Done.")

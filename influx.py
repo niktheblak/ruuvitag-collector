@@ -4,6 +4,7 @@ import os
 from exporter import Exporter
 from influxdb import InfluxDBClient
 
+
 class InfluxDBExporter(Exporter):
     def __init__(self, cfg=None):
         if cfg is None:
@@ -19,20 +20,20 @@ class InfluxDBExporter(Exporter):
             verify_ssl=cfg.ssl,
             path=cfg.path
         )
-    
+
     def name(self):
         return "InfluxDB"
-    
+
     def export(self, measurements, ts=None):
         if ts is None:
             ts = datetime.datetime.utcnow()
         for mac, content in measurements:
             points = self._to_influx_points(ts, mac, content)
             self._client.write_points(points)
-    
+
     def close(self):
         self._client.close()
-    
+
     def _to_influx_points(self, ts, mac, content):
         return [
             {
@@ -57,7 +58,8 @@ class InfluxDBConfig:
         self.host = os.environ.get("RUUVITAG_INFLUXDB_HOST", "localhost")
         self.port = int(os.environ.get("RUUVITAG_INFLUXDB_PORT", "8086"))
         self.database = os.environ.get("RUUVITAG_INFLUXDB_DATABASE")
-        self.measurement = os.environ.get("RUUVITAG_INFLUXDB_MEASUREMENT", "ruuvitag_sensor")
+        self.measurement = os.environ.get(
+            "RUUVITAG_INFLUXDB_MEASUREMENT", "ruuvitag_sensor")
         self.username = os.environ.get("RUUVITAG_INFLUXDB_USERNAME", "root")
         self.password = os.environ.get("RUUVITAG_INFLUXDB_PASSWORD", "root")
         self.path = os.environ.get("RUUVITAG_INFLUXDB_PATH", "")
