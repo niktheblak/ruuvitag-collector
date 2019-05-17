@@ -6,6 +6,8 @@ from google.cloud import datastore
 
 class GoogleCloudDatastoreExporter(Exporter):
     def __init__(self, project, namespace):
+        if not project:
+            raise Exception("Datastore project ID must be specified")
         self._client = datastore.Client(project=project, namespace=namespace)
     
     def name(self):
