@@ -35,6 +35,7 @@ environment variable names from influx.py.
 
 import datetime
 import os
+import sys
 
 from ruuvitag_sensor.ruuvi import RuuviTagSensor
 from ruuvitag_sensor.decoder import get_decoder
@@ -44,7 +45,7 @@ ini_file = os.environ.get("RUUVITAG_CONFIG_FILE", "ruuvitags.ini")
 
 tags = get_ruuvitags(inifile=ini_file)
 if not tags:
-    print("No RuuviTag definitions found from configuration file {}".format(ini_file))
+    sys.stderr.write("No RuuviTag definitions found from configuration file {}\n".format(ini_file))
     quit(1)
 
 exporters = []
@@ -91,6 +92,6 @@ for create_exporter in exporters:
         try:
             exporter.export(db_data.items(), ts)
         except Exception as e:
-            print("Error while exporting data to {}: {}".format(exporter.name(), e))
+            sys.stderr.write("Error while exporting data to {}: {}\n".format(exporter.name(), e))
 
 print("Done.")
