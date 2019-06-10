@@ -34,6 +34,7 @@ environment variable names from influx.py.
 """
 
 import datetime
+import logging
 import os
 import sys
 
@@ -41,28 +42,41 @@ from ruuvitag_sensor.ruuvi import RuuviTagSensor
 from ruuvitag_sensor.decoder import get_decoder
 from ruuvicfg import get_ruuvitags
 
+if os.environ.get("RUUVITAG_USE_STACKDRIVER", "0") == "1":
+    import google.cloud.logging
+    logging_client = google.cloud.logging.Client()
+    logging_client.setup_logging()
+else:
+    logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("ruuvitag-collector")
+
 ini_file = os.environ.get("RUUVITAG_CONFIG_FILE", "ruuvitags.ini")
 
 tags = get_ruuvitags(inifile=ini_file)
 if not tags:
-    sys.stderr.write("No RuuviTag definitions found from configuration file {}\n".format(ini_file))
+    logger.critical(
+        "No RuuviTag definitions found from configuration file %s", ini_file)
     quit(1)
 
 exporters = []
 if os.environ.get("RUUVITAG_USE_SQLITE", "0") == "1":
+    logger.info("Using SQLite exporter")
     from sqlite import SQLiteExporter
     exporters.append(lambda: SQLiteExporter(
         os.environ.get("RUUVITAG_SQLITE_FILE", "ruuvitag.db")))
 if os.environ.get("RUUVITAG_USE_INFLUXDB", "0") == "1":
+    logger.info("Using InfuxDB exporter")
     from influx import InfluxDBExporter
     exporters.append(lambda: InfluxDBExporter())
 if os.environ.get("RUUVITAG_USE_GCD", "0") == "1":
+    logger.info("Using Google Cloud Datastore exporter")
     from gcd import GoogleCloudDatastoreExporter
     gcd_project = os.environ.get("RUUVITAG_GCD_PROJECT")
     gcd_namespace = os.environ.get("RUUVITAG_GCD_NAMESPACE")
     exporters.append(lambda: GoogleCloudDatastoreExporter(
         gcd_project, gcd_namespace))
 if os.environ.get("RUUVITAG_USE_PUBSUB", "0") == "1":
+    logger.info("Using Google Pub/Sub exporter")
     from pubsub import GooglePubSubExporter
     pubsub_project = os.environ.get("RUUVITAG_PUBSUB_PROJECT")
     pubsub_topic = os.environ.get("RUUVITAG_PUBSUB_TOPIC")
@@ -70,22 +84,15 @@ if os.environ.get("RUUVITAG_USE_PUBSUB", "0") == "1":
         pubsub_project, pubsub_topic))
 # Add your own exporters here
 
-if os.environ.get("RUUVITAG_USE_STACKDRIVER", "0") == "1":
-    import google.cloud.logging
-    stackdriver = True
-    logging_client = google.cloud.logging.Client()
-    logging_client.setup_logging()
-
 ts = datetime.datetime.utcnow()
 db_data = {}
 
-print("Reading measurements from RuuviTags {}".format(str(tags)))
 for mac, name in tags.items():
-    print("Reading measurements from RuuviTag {} ({})...".format(name, mac))
+    logger.info("Reading measurements from RuuviTag %s (%s)...", name, mac)
     encoded = RuuviTagSensor.get_data(mac)
     decoder = get_decoder(encoded[0])
     data = decoder.decode_data(encoded[1])
-    print("Data received: {}".format(data))
+    logger.debug("Data received: %s", data)
 
     db_data[mac] = {"name": name}
     # add each sensor with value to the lists
@@ -94,10 +101,10 @@ for mac, name in tags.items():
 
 for create_exporter in exporters:
     with create_exporter() as exporter:
-        print("Exporting data to {}...".format(exporter.name()))
+        logger.info("Exporting data to %s", exporter.name())
         try:
             exporter.export(db_data.items(), ts)
         except Exception as e:
-            sys.stderr.write("Error while exporting data to {}: {}\n".format(exporter.name(), e))
+            logger.error("Error while exporting data to %s: %s", exporter.name(), e)
 
-print("Done.")
+logger.info("Done.")
