@@ -7,6 +7,7 @@ name = "pypi"
 ruuvitag-sensor = "*"
 influxdb = "*"
 google-cloud-pubsub = "*"
+google-cloud-logging = "*"
 
 [dev-packages]
 pylint = "*"

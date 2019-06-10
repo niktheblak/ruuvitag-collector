@@ -70,6 +70,12 @@ if os.environ.get("RUUVITAG_USE_PUBSUB", "0") == "1":
         pubsub_project, pubsub_topic))
 # Add your own exporters here
 
+if os.environ.get("RUUVITAG_USE_STACKDRIVER", "0") == "1":
+    import google.cloud.logging
+    stackdriver = True
+    logging_client = google.cloud.logging.Client()
+    logging_client.setup_logging()
+
 ts = datetime.datetime.utcnow()
 db_data = {}
 
