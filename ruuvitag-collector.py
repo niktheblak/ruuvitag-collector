@@ -36,19 +36,21 @@ environment variable names from influx.py.
 import datetime
 import logging
 import os
-import sys
 
 from ruuvitag_sensor.ruuvi import RuuviTagSensor
 from ruuvitag_sensor.decoder import get_decoder
 from ruuvicfg import get_ruuvitags
 
-if os.environ.get("RUUVITAG_USE_STACKDRIVER", "0") == "1":
+if os.environ.get("RUUVITAG_USE_STACKDRIVER_LOGGING", "0") == "1":
     import google.cloud.logging
     logging_client = google.cloud.logging.Client()
-    logging_client.setup_logging()
+    handler = logging_client.get_default_handler()
+    logger = logging.getLogger("ruuvitag-collector")
+    logger.setLevel(logging.INFO)
+    logger.addHandler(handler)
 else:
     logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("ruuvitag-collector")
+    logger = logging.getLogger("ruuvitag-collector")
 
 ini_file = os.environ.get("RUUVITAG_CONFIG_FILE", "ruuvitags.ini")
 
@@ -60,23 +62,23 @@ if not tags:
 
 exporters = []
 if os.environ.get("RUUVITAG_USE_SQLITE", "0") == "1":
-    logger.info("Using SQLite exporter")
+    logger.debug("Using SQLite exporter")
     from sqlite import SQLiteExporter
     exporters.append(lambda: SQLiteExporter(
         os.environ.get("RUUVITAG_SQLITE_FILE", "ruuvitag.db")))
 if os.environ.get("RUUVITAG_USE_INFLUXDB", "0") == "1":
-    logger.info("Using InfuxDB exporter")
+    logger.debug("Using InfuxDB exporter")
     from influx import InfluxDBExporter
     exporters.append(lambda: InfluxDBExporter())
 if os.environ.get("RUUVITAG_USE_GCD", "0") == "1":
-    logger.info("Using Google Cloud Datastore exporter")
+    logger.debug("Using Google Cloud Datastore exporter")
     from gcd import GoogleCloudDatastoreExporter
     gcd_project = os.environ.get("RUUVITAG_GCD_PROJECT")
     gcd_namespace = os.environ.get("RUUVITAG_GCD_NAMESPACE")
     exporters.append(lambda: GoogleCloudDatastoreExporter(
         gcd_project, gcd_namespace))
 if os.environ.get("RUUVITAG_USE_PUBSUB", "0") == "1":
-    logger.info("Using Google Pub/Sub exporter")
+    logger.debug("Using Google Pub/Sub exporter")
     from pubsub import GooglePubSubExporter
     pubsub_project = os.environ.get("RUUVITAG_PUBSUB_PROJECT")
     pubsub_topic = os.environ.get("RUUVITAG_PUBSUB_TOPIC")
@@ -88,7 +90,7 @@ ts = datetime.datetime.utcnow()
 db_data = {}
 
 for mac, name in tags.items():
-    logger.info("Reading measurements from RuuviTag %s (%s)...", name, mac)
+    logger.info("Reading measurements from RuuviTag %s (%s)", name, mac)
     encoded = RuuviTagSensor.get_data(mac)
     decoder = get_decoder(encoded[0])
     data = decoder.decode_data(encoded[1])
@@ -107,4 +109,4 @@ for create_exporter in exporters:
         except Exception as e:
             logger.error("Error while exporting data to %s: %s", exporter.name(), e)
 
-logger.info("Done.")
+logger.info("Done")
