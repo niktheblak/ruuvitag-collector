@@ -25,13 +25,14 @@ class GooglePubSubExporter(Exporter):
             ts = datetime.datetime.utcnow()
         futures = []
         for mac, content in measurements:
-            m = {}
-            m["mac"] = mac
-            m["name"] = content["name"]
-            m["ts"] = ts.isoformat()
-            m["temperature"] = float(content["temperature"])
-            m["humidity"] = float(content["humidity"])
-            m["pressure"] = float(content["pressure"])
+            m = {
+                "mac": mac,
+                "name": content["name"],
+                "ts": ts.isoformat(),
+                "temperature": float(content["temperature"]),
+                "humidity": float(content["humidity"]),
+                "pressure": float(content["pressure"])
+            }
             data = json.dumps(m).encode("utf-8")
             message_future = self._publisher.publish(
                 self._topic_path, data, mac=mac, name=content["name"])

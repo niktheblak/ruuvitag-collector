@@ -37,12 +37,55 @@ import datetime
 import logging
 import os
 
-from ruuvitag_sensor.ruuvi import RuuviTagSensor
 from ruuvitag_sensor.decoder import get_decoder
+from ruuvitag_sensor.ruuvi import RuuviTagSensor
+
 from ruuvicfg import get_ruuvitags
+
+
+def create_exporters():
+    exporters = []
+    if os.environ.get("RUUVITAG_USE_SQLITE", "0") == "1":
+        from sqlite import SQLiteExporter
+        exporters.append(lambda: SQLiteExporter(
+            os.environ.get("RUUVITAG_SQLITE_FILE", "ruuvitag.db")))
+    if os.environ.get("RUUVITAG_USE_INFLUXDB", "0") == "1":
+        from influx import InfluxDBExporter
+        exporters.append(lambda: InfluxDBExporter())
+    if os.environ.get("RUUVITAG_USE_GCD", "0") == "1":
+        from gcd import GoogleCloudDatastoreExporter
+        gcd_project = os.environ.get("RUUVITAG_GCD_PROJECT")
+        gcd_namespace = os.environ.get("RUUVITAG_GCD_NAMESPACE")
+        exporters.append(lambda: GoogleCloudDatastoreExporter(
+            gcd_project, gcd_namespace))
+    if os.environ.get("RUUVITAG_USE_PUBSUB", "0") == "1":
+        from pubsub import GooglePubSubExporter
+        pubsub_project = os.environ.get("RUUVITAG_PUBSUB_PROJECT")
+        pubsub_topic = os.environ.get("RUUVITAG_PUBSUB_TOPIC")
+        exporters.append(lambda: GooglePubSubExporter(
+            pubsub_project, pubsub_topic))
+    # Your exporters here
+    return exporters
+
+
+def collect_measurements(items):
+    measurements = {}
+    for mac, name in items:
+        logger.info("Reading measurements from RuuviTag %s (%s)", name, mac)
+        encoded = RuuviTagSensor.get_data(mac)
+        decoder = get_decoder(encoded[0])
+        data = decoder.decode_data(encoded[1])
+        logger.debug("Data received: %s", data)
+
+        measurements[mac] = {"name": name}
+        for sensor, value in data.items():
+            measurements[mac].update({sensor: value})
+    return measurements
+
 
 if os.environ.get("RUUVITAG_USE_STACKDRIVER_LOGGING", "0") == "1":
     import google.cloud.logging
+
     logging_client = google.cloud.logging.Client()
     handler = logging_client.get_default_handler()
     logger = logging.getLogger("ruuvitag-collector")
@@ -60,53 +103,17 @@ if not tags:
         "No RuuviTag definitions found from configuration file %s", ini_file)
     quit(1)
 
-exporters = []
-if os.environ.get("RUUVITAG_USE_SQLITE", "0") == "1":
-    logger.debug("Using SQLite exporter")
-    from sqlite import SQLiteExporter
-    exporters.append(lambda: SQLiteExporter(
-        os.environ.get("RUUVITAG_SQLITE_FILE", "ruuvitag.db")))
-if os.environ.get("RUUVITAG_USE_INFLUXDB", "0") == "1":
-    logger.debug("Using InfuxDB exporter")
-    from influx import InfluxDBExporter
-    exporters.append(lambda: InfluxDBExporter())
-if os.environ.get("RUUVITAG_USE_GCD", "0") == "1":
-    logger.debug("Using Google Cloud Datastore exporter")
-    from gcd import GoogleCloudDatastoreExporter
-    gcd_project = os.environ.get("RUUVITAG_GCD_PROJECT")
-    gcd_namespace = os.environ.get("RUUVITAG_GCD_NAMESPACE")
-    exporters.append(lambda: GoogleCloudDatastoreExporter(
-        gcd_project, gcd_namespace))
-if os.environ.get("RUUVITAG_USE_PUBSUB", "0") == "1":
-    logger.debug("Using Google Pub/Sub exporter")
-    from pubsub import GooglePubSubExporter
-    pubsub_project = os.environ.get("RUUVITAG_PUBSUB_PROJECT")
-    pubsub_topic = os.environ.get("RUUVITAG_PUBSUB_TOPIC")
-    exporters.append(lambda: GooglePubSubExporter(
-        pubsub_project, pubsub_topic))
-# Add your own exporters here
-
+exporters = create_exporters()
 ts = datetime.datetime.utcnow()
-db_data = {}
-
-for mac, name in tags.items():
-    logger.info("Reading measurements from RuuviTag %s (%s)", name, mac)
-    encoded = RuuviTagSensor.get_data(mac)
-    decoder = get_decoder(encoded[0])
-    data = decoder.decode_data(encoded[1])
-    logger.debug("Data received: %s", data)
-
-    db_data[mac] = {"name": name}
-    # add each sensor with value to the lists
-    for sensor, value in data.items():
-        db_data[mac].update({sensor: value})
+meas = collect_measurements(tags.items())
 
 for create_exporter in exporters:
     with create_exporter() as exporter:
         logger.info("Exporting data to %s", exporter.name())
         try:
-            exporter.export(db_data.items(), ts)
+            exporter.export(meas.items(), ts)
         except Exception as e:
-            logger.error("Error while exporting data to %s: %s", exporter.name(), e)
+            logger.error("Error while exporting data to %s: %s",
+                         exporter.name(), e)
 
 logger.info("Done")

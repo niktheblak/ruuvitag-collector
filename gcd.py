@@ -1,5 +1,4 @@
 import datetime
-import os
 
 from exporter import Exporter
 from google.cloud import datastore
