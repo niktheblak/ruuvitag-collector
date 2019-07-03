@@ -37,6 +37,7 @@ import datetime
 import logging
 import os
 
+from retrying import retry
 from ruuvitag_sensor.decoder import get_decoder
 from ruuvitag_sensor.ruuvi import RuuviTagSensor
 
@@ -107,11 +108,17 @@ exporters = create_exporters()
 ts = datetime.datetime.utcnow()
 meas = collect_measurements(tags.items())
 
+
+@retry(stop_max_attempt_number=10, wait_exponential_multiplier=1000, wait_exponential_max=10000)
+def export(exp, items):
+    exp.export(items, ts)
+
+
 for create_exporter in exporters:
     with create_exporter() as exporter:
         logger.info("Exporting data to %s", exporter.name())
         try:
-            exporter.export(meas.items(), ts)
+            export(exporter, meas.items())
         except Exception as e:
             logger.error("Error while exporting data to %s: %s",
                          exporter.name(), e)

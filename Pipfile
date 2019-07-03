@@ -8,6 +8,7 @@ ruuvitag-sensor = "*"
 influxdb = "*"
 google-cloud-pubsub = "*"
 google-cloud-logging = "*"
+retrying = "*"
 
 [dev-packages]
 pylint = "*"
