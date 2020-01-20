@@ -1,0 +1,31 @@
+sqlite:
+  enabled: false
+  file: measurements.db
+
+influxdb:
+  enabled: false
+  ssl: false
+  host: localhost
+  port: 8086
+  database: ruuvitag
+  measurement: ruuvitag
+  username: root
+  password: root
+
+stackdriver:
+  enabled: false
+
+gcd:
+  enabled: false
+  project: ruuvitag-collector
+  namespace: measurements
+
+pubsub:
+  enabled: false
+  project: ruuvitag-collector
+  topic: measurements
+
+ruuvitags:
+  - "CC:CA:7E:52:CC:34": Backyard
+  - "FB:E1:B7:04:95:EE": Upstairs
+  - "E8:E0:C6:0B:B8:C5": Downstairs

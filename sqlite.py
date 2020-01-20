@@ -6,11 +6,12 @@ from exporter import Exporter
 
 class SQLiteExporter(Exporter):
     def __init__(self, db_file):
+        self._db_file = db_file
         self._conn = sqlite3.connect(db_file)
         self.create_table_if_needed()
 
     def name(self):
-        return "SQLite"
+        return f"SQLite ({self._db_file})"
 
     def export(self, measurements, ts=None):
         if ts is None:

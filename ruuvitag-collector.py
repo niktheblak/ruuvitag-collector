@@ -5,65 +5,52 @@ Reads measurements from RuuviTag sensors and stores them to a local SQLite
 database and/or InfluxDB.
 
 The RuuviTag sensor MAC addresses and human-friendly names must be listed in
-ruuvitags.yaml file with MAC-name pairs under the ruuvitags collection.
-Example yaml file content:
+$HOME/.config/ruuvitag-collector/config.yaml file with MAC-name pairs under
+the ruuvitags key. Example yaml file content:
 
 ruuvitags:
-  "CC:CA:7E:52:CC:34": "Backyard"
-  "FB:E1:B7:04:95:EE": "Upstairs"
-  "E8:E0:C6:0B:B8:C5": "Downstairs"
+  "CC:CA:7E:52:CC:34": Backyard
+  "FB:E1:B7:04:95:EE": Upstairs
+  "E8:E0:C6:0B:B8:C5": Downstairs
 
-Declare the ini file location in the environment variable:
+If you want to store measurement data to e.g. local SQLite database, add the
+following keys to your config.yaml:
 
-RUUVITAG_CONFIG_FILE=/path/to/ruuvitags.yaml
+sqlite:
+  enabled: true
+  file: /path/to/database/file.db
 
-If you want to store measurement data to a local SQLite database, set
-the following environment variables:
-
-RUUVITAG_USE_SQLITE=1
-RUUVITAG_SQLITE_FILE=/path/to/database/file.db
-
-If you want to store measurement data to InfluxDB (local or remote), set at least the
-following environment variables:
-
-RUUVITAG_USE_INFLUXDB=1
-RUUVITAG_INFLUXDB_HOST=localhost
-RUUVITAG_INFLUXDB_DATABASE=ruuvitag
-
-If you need to use nonstandard options for port, SSL, username etc., look up the
-environment variable names from influx.py.
+For other storage options, look up the configuration options from README.md.
 """
 
 import datetime
 import logging
-import os
 
+import confuse
 from retrying import retry
 from ruuvitag_sensor.decoder import get_decoder
 from ruuvitag_sensor.ruuvi import RuuviTagSensor
 
-from ruuvicfg import get_ruuvitags
 
-
-def create_exporters():
+def create_exporters(config):
     exporters = []
-    if os.environ.get("RUUVITAG_USE_SQLITE", "0") == "1":
+    if config['sqlite']['enabled'].get(False):
         from sqlite import SQLiteExporter
         exporters.append(lambda: SQLiteExporter(
-            os.environ.get("RUUVITAG_SQLITE_FILE", "ruuvitag.db")))
-    if os.environ.get("RUUVITAG_USE_INFLUXDB", "0") == "1":
+            config['sqlite']['file'].as_filename()))
+    if config['influxdb']['enabled'].get(False):
         from influx import InfluxDBExporter
-        exporters.append(lambda: InfluxDBExporter())
-    if os.environ.get("RUUVITAG_USE_GCD", "0") == "1":
+        exporters.append(lambda: InfluxDBExporter(config))
+    if config['gcd']['enabled'].get(False):
         from gcd import GoogleCloudDatastoreExporter
-        gcd_project = os.environ.get("RUUVITAG_GCD_PROJECT")
-        gcd_namespace = os.environ.get("RUUVITAG_GCD_NAMESPACE")
+        gcd_project = config['gcd']['project'].get(str)
+        gcd_namespace = config['gcd']['namespace'].get(str)
         exporters.append(lambda: GoogleCloudDatastoreExporter(
             gcd_project, gcd_namespace))
-    if os.environ.get("RUUVITAG_USE_PUBSUB", "0") == "1":
+    if config['pubsub']['enabled'].get(False):
         from pubsub import GooglePubSubExporter
-        pubsub_project = os.environ.get("RUUVITAG_PUBSUB_PROJECT")
-        pubsub_topic = os.environ.get("RUUVITAG_PUBSUB_TOPIC")
+        pubsub_project = config['pubsub']['project'].get(str)
+        pubsub_topic = config['pubsub']['topic'].get(str)
         exporters.append(lambda: GooglePubSubExporter(
             pubsub_project, pubsub_topic))
     # Your exporters here
@@ -85,9 +72,9 @@ def collect_measurements(items):
     return measurements
 
 
-if os.environ.get("RUUVITAG_USE_STACKDRIVER_LOGGING", "0") == "1":
+config = confuse.Configuration('ruuvitag-collector', __name__)
+if config['stackdriver']['enabled'].get(False):
     import google.cloud.logging
-
     logging_client = google.cloud.logging.Client()
     handler = logging_client.get_default_handler()
     logger = logging.getLogger("ruuvitag-collector")
@@ -96,22 +83,15 @@ if os.environ.get("RUUVITAG_USE_STACKDRIVER_LOGGING", "0") == "1":
 else:
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger("ruuvitag-collector")
-
-cfg_file = os.environ.get("RUUVITAG_CONFIG_FILE", "ruuvitags.yaml")
-tags = {}
-try:
-    tags = get_ruuvitags(cfg_file=cfg_file)
-except Exception as exc:
-    logger.critical("Failed to read RuuviTag configuration file", exc)
-    quit(1)
+tags = config['ruuvitags'].as_pairs()
 if not tags:
     logger.critical(
-        "No RuuviTag definitions found from configuration file %s", cfg_file)
+        "No RuuviTag definitions found from configuration")
     quit(1)
 
-exporters = create_exporters()
+exporters = create_exporters(config)
 ts = datetime.datetime.utcnow()
-meas = collect_measurements(tags.items())
+meas = collect_measurements(tags)
 
 
 @retry(stop_max_attempt_number=10, wait_exponential_multiplier=1000, wait_exponential_max=10000)

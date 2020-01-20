@@ -6,42 +6,43 @@ for my (and hopefully others') use case.
 
 ## Used elements
   - [Raspberry Pi 3](https://www.raspberrypi.org/products/raspberry-pi-3-model-b/)
-  - [Python 3](https://docs.python.org/3.6/)
+  - [Python 3](https://docs.python.org/3.7/)
   - [RuuviTag Sensor Python Package](https://github.com/ttu/ruuvitag-sensor)
   - [SQLite 3 database](https://docs.python.org/3.6/library/sqlite3.html#module-sqlite3)
 
 ## Setup
 
-Create an YAML file that contains MAC addresses and human-readable names of your
-RuuviTags under the `ruuvitags` key:
+Copy the file `example-config.yaml` to `$HOME/.config/ruuvitag-collector/config.yaml`.
+
+Add the MAC addresses and human-readable names of your RuuviTags into the config file
+under the `ruuvitags` key:
 
 ```yaml
 ruuvitags:
-  "CC:CA:7E:52:CC:34": "Backyard"
-  "FB:E1:B7:04:95:EE": "Upstairs"
-  "E8:E0:C6:0B:B8:C5": "Downstairs"
+  "CC:CA:7E:52:CC:34": Backyard
+  "FB:E1:B7:04:95:EE": Upstairs
+  "E8:E0:C6:0B:B8:C5": Downstairs
 ```
 
-Declare the ini file location in the environment variable:
+If you want to save data to local SQLite database, add the following options to your config file:
 
-```bash
-export RUUVITAG_CONFIG_FILE=/home/pi/ruuvitag/ruuvitags.ini
+```yaml
+sqlite:
+  enabled: true
+  file: /home/pi/ruuvitag/ruuvitag.db
 ```
 
-If you want to save data to local SQLite database, set the following environment variables:
+If you want to save data to InfluxDB (local or remote), add the following options to your config file:
 
-```bash
-export RUUVITAG_USE_SQLITE=1
-export RUUVITAG_SQLITE_FILE=/home/pi/ruuvitag/ruuvitag.db
-```
-
-If you want to save data to InfluxDB (local or remote), set the following environment variables:
-
-```bash
-export RUUVITAG_USE_INFLUXDB=1
-export RUUVITAG_INFLUXDB_HOST=localhost
-export RUUVITAG_INFLUXDB_PORT=8086
-export RUUVITAG_INFLUXDB_DATABASE=ruuvitag
+```yaml
+influxdb:
+  enabled: true
+  host: localhost
+  port: 8086
+  database: ruuvitag
+  measurement: ruuvitag
+  username: root
+  password: root
 ```
 
 Now you can try to run it manually:

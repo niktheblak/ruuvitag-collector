@@ -1,15 +1,13 @@
 import datetime
-import os
 
 from exporter import Exporter
 from influxdb import InfluxDBClient
 
 
 class InfluxDBExporter(Exporter):
-    def __init__(self, cfg=None):
-        if cfg is None:
-            cfg = InfluxDBConfig()
-        self._cfg = cfg
+    def __init__(self, config):
+        cfg = InfluxDBConfig(config)
+        self._measurement = cfg.measurement
         self._client = InfluxDBClient(
             host=cfg.host,
             port=cfg.port,
@@ -37,7 +35,7 @@ class InfluxDBExporter(Exporter):
     def _to_influx_points(self, ts, mac, content):
         return [
             {
-                "measurement": self._cfg.measurement,
+                "measurement": self._measurement,
                 "tags": {
                     "name": content["name"],
                     "mac": mac
@@ -53,16 +51,13 @@ class InfluxDBExporter(Exporter):
 
 
 class InfluxDBConfig:
-    def __init__(self):
-        self.ssl = os.environ.get("RUUVITAG_INFLUXDB_SSL", "0") == "1"
-        self.host = os.environ.get("RUUVITAG_INFLUXDB_HOST", "localhost")
-        self.port = int(os.environ.get("RUUVITAG_INFLUXDB_PORT", "8086"))
-        self.database = os.environ.get("RUUVITAG_INFLUXDB_DATABASE")
-        if not self.database:
-            raise Exception(
-                "RUUVITAG_INFLUXDB_DATABASE environment variable must be set")
-        self.measurement = os.environ.get(
-            "RUUVITAG_INFLUXDB_MEASUREMENT", "ruuvitag_sensor")
-        self.username = os.environ.get("RUUVITAG_INFLUXDB_USERNAME", "root")
-        self.password = os.environ.get("RUUVITAG_INFLUXDB_PASSWORD", "root")
-        self.path = os.environ.get("RUUVITAG_INFLUXDB_PATH", "")
+    def __init__(self, cfg):
+        influxdb_cfg = cfg['influxdb']
+        self.ssl = influxdb_cfg['ssl'].get(False)
+        self.host = influxdb_cfg['host'].get('localhost')
+        self.port = influxdb_cfg['port'].get(8086)
+        self.database = influxdb_cfg['database'].get('ruuvitag')
+        self.measurement = influxdb_cfg['measurement'].get('ruuvitag_sensor')
+        self.username = influxdb_cfg['username'].get('root')
+        self.password = influxdb_cfg['password'].get('root')
+        self.path = influxdb_cfg['path'].get('')
