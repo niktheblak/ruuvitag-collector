@@ -59,7 +59,8 @@ class InfluxDBConfig:
         self.port = int(os.environ.get("RUUVITAG_INFLUXDB_PORT", "8086"))
         self.database = os.environ.get("RUUVITAG_INFLUXDB_DATABASE")
         if not self.database:
-            raise Exception("RUUVITAG_INFLUXDB_DATABASE environment variable must be set")
+            raise Exception(
+                "RUUVITAG_INFLUXDB_DATABASE environment variable must be set")
         self.measurement = os.environ.get(
             "RUUVITAG_INFLUXDB_MEASUREMENT", "ruuvitag_sensor")
         self.username = os.environ.get("RUUVITAG_INFLUXDB_USERNAME", "root")

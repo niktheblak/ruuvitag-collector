@@ -1,20 +1,21 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 """
 Reads measurements from RuuviTag sensors and stores them to a local SQLite
 database and/or InfluxDB.
 
 The RuuviTag sensor MAC addresses and human-friendly names must be listed in
-ruuvitags.ini file with one MAC=Name pair in each line. Example ini file content:
+ruuvitags.yaml file with MAC-name pairs under the ruuvitags collection.
+Example yaml file content:
 
-[DEFAULT]
-C7:10:31:99:61:E2 = Living room
-D3:B2:9F:90:4B:0A = Bedroom
-F8:36:EC:93:BD:59 = Bathroom
+ruuvitags:
+  "CC:CA:7E:52:CC:34": "Backyard"
+  "FB:E1:B7:04:95:EE": "Upstairs"
+  "E8:E0:C6:0B:B8:C5": "Downstairs"
 
 Declare the ini file location in the environment variable:
 
-RUUVITAG_CONFIG_FILE=/path/to/ruuvitags.ini
+RUUVITAG_CONFIG_FILE=/path/to/ruuvitags.yaml
 
 If you want to store measurement data to a local SQLite database, set
 the following environment variables:
@@ -96,12 +97,16 @@ else:
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger("ruuvitag-collector")
 
-ini_file = os.environ.get("RUUVITAG_CONFIG_FILE", "ruuvitags.ini")
-
-tags = get_ruuvitags(inifile=ini_file)
+cfg_file = os.environ.get("RUUVITAG_CONFIG_FILE", "ruuvitags.yaml")
+tags = {}
+try:
+    tags = get_ruuvitags(cfg_file=cfg_file)
+except Exception as exc:
+    logger.critical("Failed to read RuuviTag configuration file", exc)
+    quit(1)
 if not tags:
     logger.critical(
-        "No RuuviTag definitions found from configuration file %s", ini_file)
+        "No RuuviTag definitions found from configuration file %s", cfg_file)
     quit(1)
 
 exporters = create_exporters()

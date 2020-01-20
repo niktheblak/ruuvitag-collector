@@ -12,14 +12,14 @@ for my (and hopefully others') use case.
 
 ## Setup
 
-Create an ini file that contains MAC addresses and human-readable names of your
-RuuviTags:
+Create an YAML file that contains MAC addresses and human-readable names of your
+RuuviTags under the `ruuvitags` key:
 
-```
-[DEFAULT]
-CC:CA:7E:52:CC:34 = Backyard
-FB:E1:B7:04:95:EE = Upstairs
-E8:E0:C6:0B:B8:C5 = Downstairs
+```yaml
+ruuvitags:
+  "CC:CA:7E:52:CC:34": "Backyard"
+  "FB:E1:B7:04:95:EE": "Upstairs"
+  "E8:E0:C6:0B:B8:C5": "Downstairs"
 ```
 
 Declare the ini file location in the environment variable:

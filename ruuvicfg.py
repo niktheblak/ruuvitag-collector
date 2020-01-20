@@ -1,8 +1,7 @@
-import configparser
+import yaml
 
 
-def get_ruuvitags(inifile="ruuvitags.ini", section="DEFAULT"):
-    parser = configparser.ConfigParser(delimiters=('='))
-    parser.optionxform = str
-    parser.read(inifile)
-    return dict(parser.items(section))
+def get_ruuvitags(cfg_file='ruuvitags.yaml'):
+    with open(cfg_file, 'r') as stream:
+        cfg = yaml.safe_load(stream)
+        return cfg.get('ruuvitags')

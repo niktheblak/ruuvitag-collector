@@ -9,6 +9,7 @@ influxdb = "*"
 google-cloud-pubsub = "*"
 google-cloud-logging = "*"
 retrying = "*"
+pyyaml = "*"
 
 [dev-packages]
 pylint = "*"
