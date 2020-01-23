@@ -57,18 +57,19 @@ def create_exporters(config):
     return exporters
 
 
-def collect_measurements(items):
-    measurements = {}
-    for mac, name in items:
+def collect_measurements(ruuvitags):
+    measurements = dict()
+    for mac, name in ruuvitags.items():
         logger.info("Reading measurements from RuuviTag %s (%s)", name, mac)
-        encoded = RuuviTagSensor.get_data(mac)
-        decoder = get_decoder(encoded[0])
-        data = decoder.decode_data(encoded[1])
+        (data_format, encoded) = RuuviTagSensor.get_data(mac)
+        if data_format is None or encoded is None:
+            logger.warning("Invalid data from RuuviTag %s", name)
+            continue
+        decoder = get_decoder(data_format)
+        data = decoder.decode_data(encoded)
         logger.debug("Data received: %s", data)
-
-        measurements[mac] = {"name": name}
-        for sensor, value in data.items():
-            measurements[mac].update({sensor: value})
+        data["name"] = name
+        measurements[mac] = data
     return measurements
 
 
@@ -91,10 +92,15 @@ if not tags:
 
 exporters = create_exporters(config)
 ts = datetime.datetime.utcnow()
-meas = collect_measurements(tags)
+names = dict(tags)
+measurements = collect_measurements(names)
+if not measurements:
+    logger.warning("No measurements could be read")
+    quit()
 
 
-@retry(stop_max_attempt_number=10, wait_exponential_multiplier=1000, wait_exponential_max=10000)
+@retry(stop_max_attempt_number=10,
+       wait_exponential_multiplier=1000, wait_exponential_max=10000)
 def export(exp, items):
     exp.export(items, ts)
 
@@ -103,7 +109,7 @@ for create_exporter in exporters:
     with create_exporter() as exporter:
         logger.info("Exporting data to %s", exporter.name())
         try:
-            export(exporter, meas.items())
+            export(exporter, measurements.items())
         except Exception as e:
             logger.error("Error while exporting data to %s: %s",
                          exporter.name(), e)
