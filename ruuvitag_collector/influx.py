@@ -1,6 +1,6 @@
 import datetime
 
-from exporter import Exporter
+from ruuvitag_collector.exporter import Exporter
 from influxdb import InfluxDBClient
 
 

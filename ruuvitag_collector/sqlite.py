@@ -1,7 +1,7 @@
 import datetime
 import sqlite3
 
-from exporter import Exporter
+from ruuvitag_collector.exporter import Exporter
 
 
 class SQLiteExporter(Exporter):

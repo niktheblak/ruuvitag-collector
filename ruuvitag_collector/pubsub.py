@@ -2,7 +2,7 @@ import datetime
 import json
 
 from google.cloud import pubsub_v1
-from exporter import Exporter
+from ruuvitag_collector.exporter import Exporter
 
 
 class GooglePubSubExporter(Exporter):

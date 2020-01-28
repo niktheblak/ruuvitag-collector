@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """
 Reads measurements from RuuviTag sensors and stores them to a local SQLite
 database and/or InfluxDB.
@@ -26,29 +24,30 @@ For other storage options, look up the configuration options from README.md.
 import datetime
 import logging
 
-import confuse
-from retrying import retry
 from ruuvitag_sensor.decoder import get_decoder
 from ruuvitag_sensor.ruuvi import RuuviTagSensor
+
+
+logger = logging.getLogger("ruuvitag-collector")
 
 
 def create_exporters(config):
     exporters = []
     if config['sqlite']['enabled'].get(False):
-        from sqlite import SQLiteExporter
+        from ruuvitag_collector.sqlite import SQLiteExporter
         exporters.append(lambda: SQLiteExporter(
             config['sqlite']['file'].as_filename()))
     if config['influxdb']['enabled'].get(False):
-        from influx import InfluxDBExporter
+        from ruuvitag_collector.influx import InfluxDBExporter
         exporters.append(lambda: InfluxDBExporter(config))
     if config['gcd']['enabled'].get(False):
-        from gcd import GoogleCloudDatastoreExporter
+        from ruuvitag_collector.gcd import GoogleCloudDatastoreExporter
         gcd_project = config['gcd']['project'].get(str)
         gcd_namespace = config['gcd']['namespace'].get(str)
         exporters.append(lambda: GoogleCloudDatastoreExporter(
             gcd_project, gcd_namespace))
     if config['pubsub']['enabled'].get(False):
-        from pubsub import GooglePubSubExporter
+        from ruuvitag_collector.pubsub import GooglePubSubExporter
         pubsub_project = config['pubsub']['project'].get(str)
         pubsub_topic = config['pubsub']['topic'].get(str)
         exporters.append(lambda: GooglePubSubExporter(
@@ -71,47 +70,3 @@ def collect_measurements(ruuvitags):
         data["name"] = name
         measurements[mac] = data
     return measurements
-
-
-config = confuse.Configuration('ruuvitag-collector', __name__)
-if config['stackdriver']['enabled'].get(False):
-    import google.cloud.logging
-    logging_client = google.cloud.logging.Client()
-    handler = logging_client.get_default_handler()
-    logger = logging.getLogger("ruuvitag-collector")
-    logger.setLevel(logging.INFO)
-    logger.addHandler(handler)
-else:
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger("ruuvitag-collector")
-tags = config['ruuvitags'].as_pairs()
-if not tags:
-    logger.critical(
-        "No RuuviTag definitions found from configuration")
-    quit(1)
-
-exporters = create_exporters(config)
-ts = datetime.datetime.utcnow()
-names = dict(tags)
-measurements = collect_measurements(names)
-if not measurements:
-    logger.warning("No measurements could be read")
-    quit()
-
-
-@retry(stop_max_attempt_number=10,
-       wait_exponential_multiplier=1000, wait_exponential_max=10000)
-def export(exp, items):
-    exp.export(items, ts)
-
-
-for create_exporter in exporters:
-    with create_exporter() as exporter:
-        logger.info("Exporting data to %s", exporter.name())
-        try:
-            export(exporter, measurements.items())
-        except Exception as e:
-            logger.error("Error while exporting data to %s: %s",
-                         exporter.name(), e)
-
-logger.info("Done")
