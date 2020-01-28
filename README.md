@@ -45,20 +45,22 @@ influxdb:
   password: root
 ```
 
-Now you can try to run it manually:
+Then install poetry and the required packages:
 
 ```bash
-$ ./ruuvitag-logger.py
-OR
-$ /home/pi/ruuvitag/ruuvitag-logger.py
-OR
-$ python3 ruuvitag-logger.py
+sudo pip3 install poetry
+poetry install
 ```
 
-Set crontab to run logger automatically every 30 mins:
+Now you can run the collector manually:
+
+```bash
+$ poetry run python3 -m ruuvitag_collector
+```
+
+Set crontab to run the collector automatically every 5 minutes:
 ```bash
 Add this line to the /etc/crontab file
 
-*/30 *  * * *   pi      /home/pi/ruuvitag/ruuvitag-logger.py > /home/pi/ruuvitag/ruuvitag.log 2> /home/pi/ruuvitag/ruuvitag.err
+*/5 * * * *  poetry run python3 -m ruuvitag_collector > /home/pi/ruuvitag-collector/collector.log 2> /home/pi/ruuvitag-collector/collector.err
 ```
-Cron will output success log to `ruuvitag.log` file and errors to `ruuvitag.err` file.
