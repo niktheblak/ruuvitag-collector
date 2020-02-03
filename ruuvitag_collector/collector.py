@@ -21,12 +21,10 @@ sqlite:
 For other storage options, look up the configuration options from README.md.
 """
 
-import datetime
 import logging
 
 from ruuvitag_sensor.decoder import get_decoder
 from ruuvitag_sensor.ruuvi import RuuviTagSensor
-
 
 logger = logging.getLogger("ruuvitag-collector")
 
