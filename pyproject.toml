@@ -7,7 +7,7 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.7"
-ruuvitag-sensor = "^0.13.0"
+ruuvitag-sensor = "^2.0.0"
 influxdb = "^5.2.3"
 google-cloud-pubsub = "^2.0.0"
 google-cloud-logging = "^3.0.0"

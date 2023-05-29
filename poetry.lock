@@ -310,6 +310,25 @@ files = [
 ]
 
 [[package]]
+name = "importlib-metadata"
+version = "4.2.0"
+description = "Read metadata from Python packages"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "importlib_metadata-4.2.0-py3-none-any.whl", hash = "sha256:057e92c15bc8d9e8109738a48db0ccb31b4d9d5cfbee5a8670879a30be66304b"},
+    {file = "importlib_metadata-4.2.0.tar.gz", hash = "sha256:b7e52a1f8dec14a75ea73e0891f3060099ca1d8e6a462a4dff11c3e119ea1b31"},
+]
+
+[package.dependencies]
+typing-extensions = {version = ">=3.6.4", markers = "python_version < \"3.8\""}
+zipp = ">=0.5"
+
+[package.extras]
+docs = ["jaraco.packaging (>=8.2)", "rst.linker (>=1.9)", "sphinx"]
+testing = ["flufl.flake8", "importlib-resources (>=1.3)", "packaging", "pep517", "pyfakefs", "pytest (>=4.6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=1.0.1)", "pytest-flake8", "pytest-mypy"]
+
+[[package]]
 name = "influxdb"
 version = "5.3.1"
 description = "InfluxDB client"
@@ -400,6 +419,17 @@ files = [
     {file = "msgpack-1.0.5-cp39-cp39-win32.whl", hash = "sha256:ac9dd47af78cae935901a9a500104e2dea2e253207c924cc95de149606dc43cc"},
     {file = "msgpack-1.0.5-cp39-cp39-win_amd64.whl", hash = "sha256:06f5174b5f8ed0ed919da0e62cbd4ffde676a374aba4020034da05fab67b9164"},
     {file = "msgpack-1.0.5.tar.gz", hash = "sha256:c075544284eadc5cddc70f4757331d99dcbc16b2bbd4849d15f8aae4cf36d31c"},
+]
+
+[[package]]
+name = "mypy-extensions"
+version = "1.0.0"
+description = "Type system extensions for programs checked with the mypy type checker."
+optional = false
+python-versions = ">=3.5"
+files = [
+    {file = "mypy_extensions-1.0.0-py3-none-any.whl", hash = "sha256:4392f6c0eb8a5668a69e23d168ffa70f0be9ccfd32b5cc2d26a34ae5b844552d"},
+    {file = "mypy_extensions-1.0.0.tar.gz", hash = "sha256:75dbf8955dc00442a438fc4d0666508a9a97b6bd41aa2f0ffe9d2f2725af0782"},
 ]
 
 [[package]]
@@ -542,6 +572,20 @@ files = [
 ]
 
 [[package]]
+name = "reactivex"
+version = "4.0.4"
+description = "ReactiveX (Rx) for Python"
+optional = false
+python-versions = ">=3.7,<4.0"
+files = [
+    {file = "reactivex-4.0.4-py3-none-any.whl", hash = "sha256:0004796c420bd9e68aad8e65627d85a8e13f293de76656165dffbcb3a0e3fb6a"},
+    {file = "reactivex-4.0.4.tar.gz", hash = "sha256:e912e6591022ab9176df8348a653fe8c8fa7a301f26f9931c9d8c78a650e04e8"},
+]
+
+[package.dependencies]
+typing-extensions = ">=4.1.1,<5.0.0"
+
+[[package]]
 name = "requests"
 version = "2.22.0"
 description = "Python HTTP for Humans."
@@ -592,28 +636,23 @@ pyasn1 = ">=0.1.3"
 
 [[package]]
 name = "ruuvitag-sensor"
-version = "0.13.0"
-description = "Find RuuviTag sensor beacons and get data from selected sensor and decode data from eddystone url"
+version = "2.1.0"
+description = "Find RuuviTag sensors and get decoded data from selected sensors"
 optional = false
-python-versions = "*"
+python-versions = ">=3.7"
 files = [
-    {file = "ruuvitag_sensor-0.13.0.tar.gz", hash = "sha256:27b42d457f0722796ca10d26733b96e9ac431e446473cd4d755729c277dbf253"},
+    {file = "ruuvitag_sensor-2.1.0-py3-none-any.whl", hash = "sha256:56cdb3f38164ea88533ec0107b0b93032d98844fb36c26e00c8b82509fc16435"},
+    {file = "ruuvitag_sensor-2.1.0.tar.gz", hash = "sha256:23ec124b9135c944d806e95343ee6ff71daa4699a2cdb2b9f56c76e50706b026"},
 ]
 
 [package.dependencies]
+importlib-metadata = {version = ">=1.1.0,<4.3", markers = "python_version < \"3.8\""}
+mypy-extensions = {version = "*", markers = "python_version < \"3.8\""}
 ptyprocess = {version = "*", markers = "platform_system == \"Linux\""}
-rx = "*"
+reactivex = "*"
 
-[[package]]
-name = "rx"
-version = "3.0.1"
-description = "Reactive Extensions (Rx) for Python"
-optional = false
-python-versions = ">=3.6.0"
-files = [
-    {file = "Rx-3.0.1-py3-none-any.whl", hash = "sha256:00c4ab3ecd1ab9a55f310d05e20ae7f93d3cdd1150de5c56347e67a1ecd73963"},
-    {file = "Rx-3.0.1.tar.gz", hash = "sha256:c7d168618e3cec35fda9c9c8b5d7f966739df4b1a99b315eae1fc2d7d69e2512"},
-]
+[package.extras]
+dev = ["black", "flake8-pyproject", "isort", "mypy", "pylint", "pytest", "pytest-asyncio"]
 
 [[package]]
 name = "setuptools"
@@ -643,6 +682,17 @@ files = [
 ]
 
 [[package]]
+name = "typing-extensions"
+version = "4.6.2"
+description = "Backported and Experimental Type Hints for Python 3.7+"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "typing_extensions-4.6.2-py3-none-any.whl", hash = "sha256:3a8b36f13dd5fdc5d1b16fe317f5668545de77fa0b8e02006381fd49d731ab98"},
+    {file = "typing_extensions-4.6.2.tar.gz", hash = "sha256:06006244c70ac8ee83fa8282cb188f697b8db25bc8b4df07be1873c43897060c"},
+]
+
+[[package]]
 name = "urllib3"
 version = "1.25.8"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
@@ -658,7 +708,22 @@ brotli = ["brotlipy (>=0.6.0)"]
 secure = ["certifi", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "ipaddress", "pyOpenSSL (>=0.14)"]
 socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 
+[[package]]
+name = "zipp"
+version = "3.15.0"
+description = "Backport of pathlib-compatible object wrapper for zip files"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "zipp-3.15.0-py3-none-any.whl", hash = "sha256:48904fc76a60e542af151aded95726c1a5c34ed43ab4134b597665c86d7ad556"},
+    {file = "zipp-3.15.0.tar.gz", hash = "sha256:112929ad649da941c23de50f356a2b5570c954b65150642bccdd66bf194d224b"},
+]
+
+[package.extras]
+docs = ["furo", "jaraco.packaging (>=9)", "jaraco.tidelift (>=1.4)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-lint"]
+testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=1.3)", "pytest-flake8", "pytest-mypy (>=0.9.1)"]
+
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.7"
-content-hash = "40eed4159bdf3b413fee6a4b2cf9660039916ba01200e7681d432758d1f950c8"
+content-hash = "2c37e2f4c4e3680d792123457d418593e01a74eb4d3662b1cfaaf3a4e757bc7e"
