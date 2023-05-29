@@ -2,5 +2,29 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:base"
+  ],
+  "poetry": {
+    "enabled": true
+  },
+  "pip_requirements": {
+    "enabled": true
+  },
+  "ignorePaths": [
+    "requirements.txt"
+  ],
+  "packageRules": [
+    {
+      "matchManagers": ["poetry"],
+      "groupName": "python dependencies",
+      "commitMessagePrefix": "fix(deps): ",
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true
+    },
+    {
+      "matchManagers": ["poetry"],
+      "commitMessagePrefix": "fix(deps): ",
+      "matchUpdateTypes": ["major"],
+      "automerge": false
+    }
   ]
 }
