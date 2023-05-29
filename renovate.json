@@ -6,12 +6,6 @@
   "poetry": {
     "enabled": true
   },
-  "pip_requirements": {
-    "enabled": true
-  },
-  "ignorePaths": [
-    "requirements.txt"
-  ],
   "packageRules": [
     {
       "matchManagers": ["poetry"],
