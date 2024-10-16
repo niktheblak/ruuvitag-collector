@@ -299,13 +299,13 @@ grpc = ["grpcio (>=1.38.0,<2.0dev)"]
 
 [[package]]
 name = "google-cloud-logging"
-version = "3.11.2"
+version = "3.11.3"
 description = "Stackdriver Logging API client library"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "google_cloud_logging-3.11.2-py2.py3-none-any.whl", hash = "sha256:0a755f04f184fbe77ad608258dc283a032485ebb4d0e2b2501964059ee9c898f"},
-    {file = "google_cloud_logging-3.11.2.tar.gz", hash = "sha256:4897441c2b74f6eda9181c23a8817223b6145943314a821d64b729d30766cb2b"},
+    {file = "google_cloud_logging-3.11.3-py2.py3-none-any.whl", hash = "sha256:b8ec23f2998f76a58f8492db26a0f4151dd500425c3f08448586b85972f3c494"},
+    {file = "google_cloud_logging-3.11.3.tar.gz", hash = "sha256:0a73cd94118875387d4535371d9e9426861edef8e44fba1261e86782d5b8d54f"},
 ]
 
 [package.dependencies]
@@ -352,13 +352,13 @@ libcst = ["libcst (>=0.3.10)"]
 
 [[package]]
 name = "google-cloud-pubsub"
-version = "2.26.0"
+version = "2.26.1"
 description = "Google Cloud Pub/Sub API client library"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "google_cloud_pubsub-2.26.0-py2.py3-none-any.whl", hash = "sha256:ec767394ac3ed1f12fe143ae131520ce6aea603c8c530f6e18d74c1eba4f4695"},
-    {file = "google_cloud_pubsub-2.26.0.tar.gz", hash = "sha256:4917a5d9bad0df64b7b70785866f04fae20b686dc729a42a6d0c3463f506c57b"},
+    {file = "google_cloud_pubsub-2.26.1-py2.py3-none-any.whl", hash = "sha256:932d4434d86af25673082b48d54b318a448d1a7cd718404c33bf008ae9a8bb22"},
+    {file = "google_cloud_pubsub-2.26.1.tar.gz", hash = "sha256:d46a302c2c7a008e399f4c04b4be6341d8aa7a537a25810ec8d38a5c125f816d"},
 ]
 
 [package.dependencies]
