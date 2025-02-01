@@ -299,13 +299,13 @@ grpc = ["grpcio (>=1.38.0,<2.0dev)"]
 
 [[package]]
 name = "google-cloud-logging"
-version = "3.11.2"
+version = "3.11.4"
 description = "Stackdriver Logging API client library"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "google_cloud_logging-3.11.2-py2.py3-none-any.whl", hash = "sha256:0a755f04f184fbe77ad608258dc283a032485ebb4d0e2b2501964059ee9c898f"},
-    {file = "google_cloud_logging-3.11.2.tar.gz", hash = "sha256:4897441c2b74f6eda9181c23a8817223b6145943314a821d64b729d30766cb2b"},
+    {file = "google_cloud_logging-3.11.4-py2.py3-none-any.whl", hash = "sha256:1d465ac62df29fb94bba4d6b4891035e57d573d84541dd8a40eebbc74422b2f0"},
+    {file = "google_cloud_logging-3.11.4.tar.gz", hash = "sha256:32305d989323f3c58603044e2ac5d9cf23e9465ede511bbe90b4309270d3195c"},
 ]
 
 [package.dependencies]
@@ -319,6 +319,7 @@ opentelemetry-api = ">=1.9.0"
 proto-plus = [
     {version = ">=1.22.0,<2.0.0dev", markers = "python_version < \"3.11\""},
     {version = ">=1.22.2,<2.0.0dev", markers = "python_version >= \"3.11\""},
+    {version = ">=1.25.0,<2.0.0dev", markers = "python_version >= \"3.13\""},
 ]
 protobuf = ">=3.20.2,<4.21.0 || >4.21.0,<4.21.1 || >4.21.1,<4.21.2 || >4.21.2,<4.21.3 || >4.21.3,<4.21.4 || >4.21.4,<4.21.5 || >4.21.5,<6.0.0dev"
 
@@ -352,13 +353,13 @@ libcst = ["libcst (>=0.3.10)"]
 
 [[package]]
 name = "google-cloud-pubsub"
-version = "2.26.0"
+version = "2.28.0"
 description = "Google Cloud Pub/Sub API client library"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "google_cloud_pubsub-2.26.0-py2.py3-none-any.whl", hash = "sha256:ec767394ac3ed1f12fe143ae131520ce6aea603c8c530f6e18d74c1eba4f4695"},
-    {file = "google_cloud_pubsub-2.26.0.tar.gz", hash = "sha256:4917a5d9bad0df64b7b70785866f04fae20b686dc729a42a6d0c3463f506c57b"},
+    {file = "google_cloud_pubsub-2.28.0-py2.py3-none-any.whl", hash = "sha256:76b41a322b43bc845fb06ffe238758726324d957d0161bae3ff4b14339da144b"},
+    {file = "google_cloud_pubsub-2.28.0.tar.gz", hash = "sha256:904e894b4e15121521077ac85c9aa8f4e7b8517bc5fb409ddb2aac8df1a02b3c"},
 ]
 
 [package.dependencies]
@@ -675,6 +676,23 @@ protobuf = ">=3.19.0,<5.0.0dev"
 
 [package.extras]
 testing = ["google-api-core[grpc] (>=1.31.5)"]
+
+[[package]]
+name = "proto-plus"
+version = "1.26.0"
+description = "Beautiful, Pythonic protocol buffers"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "proto_plus-1.26.0-py3-none-any.whl", hash = "sha256:bf2dfaa3da281fc3187d12d224c707cb57214fb2c22ba854eb0c105a3fb2d4d7"},
+    {file = "proto_plus-1.26.0.tar.gz", hash = "sha256:6e93d5f5ca267b54300880fff156b6a3386b3fa3f43b1da62e680fc0c586ef22"},
+]
+
+[package.dependencies]
+protobuf = ">=3.19.0,<6.0.0dev"
+
+[package.extras]
+testing = ["google-api-core (>=1.31.5)"]
 
 [[package]]
 name = "protobuf"
